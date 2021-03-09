@@ -1,0 +1,52 @@
+lab.txt portion:
+1. tr2b presented some new challenges for me that I had to research to figure out. The first of
+which was the action of passing arguments into C code. A quick google search and some
+experimenting showed to me that it was quite easy actually. I did have to find out what we
+weren't allowed to do for this(not print to stdout) and change my erro codes accordingly to 
+instead print to stderr. Overall the logic of tr seemed simple, iterate through stdin and 
+if the character is is group 1, change it to the corresponding character in group 2. I
+decided to implement this with a for loop. With the buffer(using getchar) I used much the 
+same method as sfrob from last week. The only thing I found that I needed to change 
+about my method after using valgrind was to append a '/0' character to fill an uninitialized
+end of the character array that was being read.
+
+2. For tr2u.c I copied the code from tr2b.c and made some minor changes. The first
+being that I included <unistd.h> to use the system read and write funcitons. The second was
+that I changed my method of reading from standard in from a for loop that contains breaks
+meant to end it to a while loop that reads one character at a time until it reaches the end of
+stdin. Replacing my loop of putchar to print results with a proper write seemed to work well. 
+Running through Valgrind showed a similar issue to that which I found in tr2b so I once again
+fixed it by appending '/0' as the last byte of the character array that would store what the
+program receives from stdin.
+
+3. To create the 5 million byte file I used a python cript to print 5,000,000 letters, and
+   saved that output into a file.
+   (a) When copying one file from another, the buffered tr2b.c writes to the newfile in chunks
+   of 8192. The input was read 4096 bytes at a time.
+   On the other hand tr2u I was clearly able to see that 5,000,000 reads were executed and it
+   ran extremely slowly. I then saw that it also wrote one byte at a time into the new file.
+   Overall tr2u is extremely slow.
+   (b) When copying to terminal, the tr2b.c writes 1024 bytes per each write. Unfortunately
+   there were so many writes that I could not see how many bytes wer being read at a time.
+   Once again, tr2u ran slowly and read one character at a time. Tr2u, however, sees no
+   difference on execution, reading and writing just one byte at a time for an etremely
+   slow program
+4. As I assumed, the tr2u command is slower. That much is clear when the time command is run,
+   the same 5,000,000 byte file from earlier takes 7.52 system time wheras the same on tr2b
+   takes only .03 system time.
+
+
+report.txt portion:
+With testing 100 lines, there was no discernable difference between sfrob and sfrobu, once I got to 10,000 lines, I noticed that my original sfrob was faster, whereas sfrob took .01 system
+time, sfrobu took .12 system time. I attempted to test sfrobu with 1 million lines, but some
+overflow must have occured because it would be causing segmentation faults. Checking with
+valgrind shows that extrememly large file sizes cause leaks, I will look for solutions to this.
+For records sake, my sfrob took 1.50 system time to deal with 1 million lines.
+
+Using strace, it seems clear that the mmap and mprotect funcitons are used together to allocate
+memory. It seems that with mmap 4096 bytes are allocated at a time, and passing NULL allows
+the system to choose where to allocate the memory. After looking it up the rest of the 
+arguments are the protection desired for the allocated memory, the flags, the file diescriptor,
+and the offset. It also seems that any time memory is allocated this way, mprotect must be run
+to protect those parts in memory. The arguments for mprotect are address, amount of bytes
+to take effect on, and on what level to preotect that memory.
