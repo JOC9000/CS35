@@ -1,0 +1,255 @@
+After using the locale command, and noticing LC_CTYPE was not set to C,
+ I used the command "export LC_ALL='C'
+Then, I created the log file to begin the lab within my Week 3 file. 
+Then, I used "man sort" to find out how to use sort to sort the list
+ of English words.
+Using the command "sort /usr/share/dict/words > words" sorted the
+ words and put the output into the file of the same name but in my
+ current directory.
+After verifying the contents of words, I used
+ "wget https://web.cs.ucla.edu/classes/fall20/cs35L/assign/assign3.html"
+  to get a copy of the webpage assign3.html.
+I read up the man page on tr and generally understood how it works
+ and what the provided commands would do.
+So I used the command "cat assign3.html | tr -c 'A-Za-z' '[\n*]'" which
+ gives only alphabetic characters with words seperated by newlines,
+ and each non alphabet character is translated to a newline.
+Then I used
+ "cat assign3.html | tr -cs 'A-Za-z' '[\n*]'
+ which still only has alphabet character but this time each word is
+ seperated by one line.
+     This is because the -s option is set which means that the repeated
+ non-alphabet characters get translated to be just one newline, instead
+ of a newline for each non-alpha character.
+I continued with the next command:
+ "cat assign3.html | tr -cs 'A-Za-z' '[\n*]' | sort"
+ which once again has one line separating each word but this time the
+ words are sorted alphabetically.
+     This is because we used the sort command to sort the output of
+ the tr command alphabetically.
+Next, use the same command but appending "-u" which once again
+ alphaabeticaly sorts each word, but each word appears only once. 
+     This is because the -u option for sort ensures that only unique
+ words are printed, in other words each word is printed only once.
+Once again we add on to the command: "| comm - words" which printed
+ many more words, still sorted, in three different columns, some not
+ from assign3.html.
+     This is because the comm command compared the two files and
+ produced every line unique to the prior output in the 1st column,
+ shared in the 2nd, and unique to the word file in the 3rd column. 
+Finally, for the last listed command I gave the comm command from
+ before the following options: "-23" which output a handful of
+ words, many oddly capitalized or not proper english in the 1st
+ column.
+     This is because the included options suppressed the 2nd and
+ 3rd columns, or any words present in the output of sort not
+ present in the words file are printed.
+After viewing the hawaiian webpage, I used wget to retrieve the
+ file into my local directory.
+Knowing I'd need to create a script I did so, calling it
+ buildwords, and setting permissions so that anyone can execute
+ it with "chmod ugo+x testScript.sh"
+I tested how to use an argument within a script using cat and a
+ local file, remembering that $1 could be used to refer to the
+ argument given.
+So I began the process of automating the fomatting of the
+ webpage to create a
+ dictionary with the following:(testing the commands myslef
+ before implemeting in the script)
+     "tr -d "?""
+ to remove all instances of the ? character
+     "tr "\`-" "'\ ""
+ to replace all okinas with apostrophes and all dashes with spaces
+     "tr [:upper:] [:lower:]"
+ to get all characters to be lowercase
+     "sed "s/<u>//g""
+ to remove all instances of <u>
+     "sed "s/<\/u>//g""
+ to remove all instances of </u>
+     "grep -E "<td[^>]*>[pk'mnwlhaeiou ]+<\/td>""
+ to retrieve every line of the form described in the assignment
+     "sed -E "s/<td[^>]*>//g""
+ to remove all <td>
+     "sed "s/<\/td>//g""
+ to remove all </td>
+     "tr -s [:blank:] '[\n*]'"
+ to remove white space and seperate words and squeeze
+ to ensure just one newline per word
+     "sort -u"
+ to sort the remaining words and ensure each word appears once
+
+so my buildwords contained the following:
+"
+#! /usr/bin/bash
+
+cat $1 | tr -d "?" | tr "\`-" "'\ " | tr [:upper:] [:lower:] |
+ sed "s/<u>//g" |  sed "s/<\/u>//g" |
+ grep -E "<td[^>]*>[pk'mnwlhaeiou ]+<\/td>"
+ | sed -E "s/<td[^>]*>//g" | sed "s/<\/td>//g" |
+ tr -s [:blank:] '[\n*]' | sort -u
+"
+Note: to make it fit better in my buildwords I stored some
+ intermediate results in a variable $x and continued the
+ program on a new line.
+
+Next, I used the command " cat hwnwdshw.htm | .buildwords > hwords" to
+ save the ouput of buildwords to hwords.
+
+The command "cat assign3.html | tr -cs "A-Za-z'" '[\n*]' |
+ tr [:upper:] [:lower:] | sort -u | comm -23 - hwords"
+ should be the hawaiian equivalent of ENGLISHCHECKER, HAWAIIANCHECKER.
+
+HAWAIIANCHECKER shows that there are a total of 574 misspelled
+ words on the assignment page.
+ENGLISHCHECKER shows a total of 104 misspelled words.
+
+To compare which words are marked as wrong by ENGLISHCHECKER and
+ not by HAWAIIANCHECKER,
+ I output the result of each checker into a corresponding file.
+Then I used "comm EnglishWrong hawaiiWrong -23 | wc -w" to count
+ the words that only
+ ENGLISHCHECKER reports as misspelled, which is 72.
+     Two examples are: "mailto" and "wiki"
+The vice versa has me giving the comm command the option -13,
+ to see that the misspelling
+ unique to HAWAIINCHECKER number 542.
+    Two examples are: "za" and "zero"
+
+Lab Development
+*NOTE: I was not aware I was supposed to write about the 
+       development of my poornames script at first, so 
+       there is likely lots of detail missing here!*
+
+To create the basic poornames, I began by creating the
+   messages to print out when the arguments provided 
+   do not meet specifications. I was not sure at first
+   how to print to stderr, but believe I've got it down.
+
+To check if the argument passed in was a directory, 
+   I used the find feature tuned with min and max 
+   depth levels along with a type -d test to confirm.
+   If this yielded nothing, the directory name D 
+   passed in was not a directory after all.
+   
+To check if the argument started with a '-', I used 
+   a new variable that would store the result of 
+   grep if it started with a '-' (regex "^-") and
+   check if that variable had something. If it did
+   then an error message was printed and the 
+   script exited.
+   
+I found that when permissions were not available 
+  to poornames, the commands like find that I used
+  would output such messages and I didn't need to
+  create an error message of my own. I hope that is
+  enough.
+
+To check when given no arguments, I simply used an 
+   if combined with the $# variable. However, I 
+   was not aware at first that it neededt o appear
+   as though '.' was passed in, and used pwd at
+   first, giving the full path. Near the end of
+   developing I fixed this.
+   
+Another bit of code I implemented before the "meat"
+   of the script was a slashCheck, which appends a 
+   slash ot the end of the directory name if it
+   does not already have one, using grep and an
+   if statement.
+   
+The first 4 guidelines for a bad name were fairly
+    easy to implement using grep commands. To make
+    things simple, I stored the offenders of each
+    guideline within a variable of their own, 
+    starting with poor going up to poor4(5th guideline)
+
+However upon seeing the last guidline I immediately 
+    recognized a problem. My original method was 
+    to use two for loops along with seperate variables
+    and tr commands to check if two file names differed 
+    only in case. This meant N^2 operations. Once I began
+    testing in /usr/lib I realized this was a problem. 
+    Luckily I got this down to N operation by sorting the
+    list of files under a directory with the -f option,
+    which made those names that differed only in case to
+    appear one after the other. From there, checking if the
+    current word was a different capitalized version of
+    the prior word took much less work.
+
+To finally store the "bad names" I used a variable 
+   fullpoor, that would take in each poor variable
+   with a full list of the bad names, and sort them
+   to make sure each file only showed up once. Howevever,
+   in my testing I saw that when one of my poor variables
+   was empty(a certain guideline was not broken) an empty
+   line would appear. To alleviate this  Icreated a seres
+   of if statements that would check to make sure that a 
+   poor variable actually contained something before
+   appending it to fullpoor. Fullpoor was then sorted
+
+Then, to append the path back to the files, I 
+   used a variable fullestpoor and a forloop to store
+   the full path to a bad file name for each bad file 
+   within finalpoor.
+
+Finally, to make sure that directories had the slash after
+   their name if it was a bad name, I recursed through
+   fullestpoor and checked if each file contained was a
+   directory, and if it was, I appended a slash to the 
+   end and appended that to a new variable finalpoor.
+   If it was not a directory, I simply appended the file
+   name now with full path to it, to finalpoor. To display 
+   these results I just used the echo command on finalpoor.
+
+Now onto the recursed poornames...
+
+Having to take in an option -r into account really threw
+   off my error messages, so I ended up opting for a series
+   of if and else statements based off the number of arguments.
+   Anything greater than two would be an error. Having none
+   would mean basic poornmaes. Having one or two arguments
+   could lead to many errors that are covered pretty well by
+   my if statements.
+
+Before I check for any poornames, I create a new variable list, 
+   that stores the names of all directories within the given 
+   directory. I also create a new variable recursedList.
+   If the recurse option is enabled, then every directory
+   given in list is given its own ./poornames command, 
+   and the results of this are stored within recursedList
+
+Just before my code ends, I made sure that the results
+   recursedList are displayed by echoing it into finalpoor
+   before finalpoor is echoed.	
+
+Of course, this was all before the autograder was out, once
+   it was accessible I implemented the following changes in 
+   my code.
+
+In my attempt to fix what I assumed to be the issue in my 
+   recursive poornames, I used the recommended find -exec
+   option. Within this I learned that I had to use $0 instead
+   of the script name to make sure it could still be utilized
+   even if renamed.
+
+I export LC_ALL=C to make sure my method of detecting those 
+  filenames that differ only in case works with computers with
+  different locale variables set.
+
+I combined checking if a file was a directory with adding the
+  path back to the filename, meaning one less forloop to save
+  on operations and get cleaner code.
+
+On top of all this I added comments throughout the script to
+   have it be easier to understand.
+
+However, despite my debugging efforts for nearly two days straight
+   it seems that the autograder is out for my head. I have
+   pinpointed the issue to those cases that use the -r option.
+   In all my tests the behavior is consistent with my expectations.
+   I am losing my mind over this but its ok, I'm hoping to get some 
+   insight into my errors tomorrow.
+
+Of course most of my issues were resolved when changing the very
+   first line to "!#/usr/bin/env bash" in typical programming
+   fashion.
