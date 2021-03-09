@@ -1,0 +1,36 @@
+1. I do not know how to answer this question yet fully yet
+   but I suspect that that it would improve the performance
+   since the overhead of an if is no longer present with 
+   the invocation of the -A option in the patched ls.
+   After running time tests, I see that my theory seems to 
+   hold true, using the options -RaA with both on /usr on
+   the servers, I was able to see that the patched version
+   edged out in speed by tenths of a second. Of course, 
+   differing amounts on the servers at times could be
+   causing my results.
+
+2. Several problems could stem from the patch. Any script 
+   that implements the patch and relies on the amount of files
+   displayed before, with the incorrect behavior, would change
+   their behavior and could produce vastly different results.
+
+3. When randline.py is invoked on an empty file, it raises an
+   error, citing that the implementation of the random module
+   of python of 2.7 raises an IndexError when a list is empty.
+   This is because a list with no entries cannot be indexed,
+   and the list contains the lines of the empty file. Since 
+   the file has no lines, the resultant list is empty, and
+   cannot be indexed to be randomized.
+
+4. When randline.py is invoked with python3, an error is
+   thrown, citing line 65 as the location of the error. I 
+   assume this is due to some part of the exception on line
+   65 using a method deprecated or changed in python3.
+
+5. After testing my shuf.py and using it on the autograder,
+   getting full points, I began to test it with python 2,
+   and in all my test cases its behavior was consistent 
+   and correct. Therefore my shuf.py seems to act the
+   same with python 2 and 3. I assume this is because the 
+   methods and modules I used are all usable in python 2
+   and 3. 

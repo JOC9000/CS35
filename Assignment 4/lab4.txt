@@ -1,0 +1,75 @@
+I began by verifying the issue in a subdirectory I called
+  test. I created the simple script la as well as the files 
+  foo and .bar to observe behavior. I sawe that indeed the 
+  error was present, as the same would be printed(. and .. 
+  included) with or without the appended -A option.
+
+Then, to verify which version of ls the servers are on I 
+      invoked the ls command with the --version which gave 
+      me 
+      	 "ls (GNU coreutils) 8.22"
+      so the linux servers use version 8.22
+
+Now on to the lab:
+
+1. I ran the wget command on the tarball, the signature, and
+   the keyring linked in the assignment page to obtain that
+    data in the linux servers. Then I used the given command
+    which said that it was a good signature, however it did
+    throw a warning that the key was not certified with
+    a trusted signature. This is because we downloaded the
+    signature from online, and the server does not recognize
+    ("trust") it because it has no way to verify where the data
+    has come from.
+
+2. To configure and install the downloaded version of coruttils,
+   first thing I had to do was decompress the tarball. 
+   To do this I used the following command:
+      tar -xJvf coreutils-8.29.tar.xz
+
+   where the option -xJvf, tells the tar command to extract to disk,
+   filter for .xz, print all file names extracted, and allows us to 
+   specify the file of the tar we wish to decompress respectively.
+
+   Then to conpile and install I ran the following inside the new archive: 
+   	./configure --prefix="/u/cs/ugrad/contrera/Desktop/CS35/assignment4
+/installdir"
+    to tell the program where to install, then
+       make
+       make install
+    to actually install the program, all while still within the directory, with
+    no issues.
+
+3. To test that the bug still occured, I used the following command:
+      /installdir/bin/ls -a -A
+   and noticed that the . and .. were still being shown in the output.
+   I also tested this with just the -A option to see what the required behavior
+   should be (no . and ..)
+
+4. To apply the patch I first downloaded it with wget, making sure to use the 
+   -O option to name the resulting file "lspatch.diff", then moved it into the
+   coreutils-8.29 directory. Once inside the directory, I ran the following
+   command:
+	path -p1 < lspatch.diff
+
+   with a -p1 option since there is no a or b directories within the root of
+   coreutils-8.29. There was one issue where the first hunk would fail, which
+   after some digging I found was because the context as to what is trying to 
+   be changed in the NEWS file does not exist, meaning that the diff file hunk 
+   is for some other version of NEWS that does contain that context.
+
+5. After this I tried to run make, but notice that an error was thrown. So, I 
+   used autoreconf -fi as said in the lab4 hint slides. After that I ran make
+   and it worked successfully. This compiles the modified files (like ls.c) and
+   put the resultant files within the src directory. Since the resultant
+   "patched" version of executable ls is available within the src directory,
+   there is no need to use make install. At first I did not know where to find
+   the resultant files, and thought I was messing up big time before learning
+   in office hours that the src directory contained the resultant files of the
+   make command.
+
+6. I was able to test the success of the patch within the src file itself,
+using:
+     ./ls -aA
+   which gave the correct behavior, not printing . and .. in the output. Which
+   means that the pastch for ls was successful and I am done with the lab!
