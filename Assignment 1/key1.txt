@@ -1,0 +1,69 @@
+1.1
+	2. "C-s H T M L ENTER"
+	3. "C-s s c a v e n g e r M-b"
+	4. "C-s s e l f - r e f e r e n t i a l M-b M-b"
+	5. "C-s a r r o w M-b"
+	6. "C-e"
+	7. "C-a"
+
+1.2
+	2. "C-s < ! - C-a C-k" 
+	3. "C-s < ! C-a C-k"
+	4. "C-s < ! C-a C-k DA C-k DA C-k" (DA is Down Arrow)
+	5. "C-s < ! RA RA RA RA RA Backspace Backspace Backspace Backspace Backspace Backspace Backspace" (RA is Right Arrow)
+	   "C-s < ! C-a C-k DA C-k DA C-k DA C-k"
+	   "C-s < ! C-a C-k"
+
+1.3
+	2. "C-s A s s i g n m e n t 1 ENTER Backspace 4 2"
+	   "C-s A s s i g n m e n t 1 ENTER Backspace 4 2"
+	3. "C-r U T F - 8 ENTER RA RA RA RA RA Backspace Backspace Backspace Backspace Backspace U S - A S C I I "
+	4. "C-M-s [ ^ [ : a s c i i : ] ] ENTER C-a C-k"
+	5. "C-s < / o l > ENTER ENTER"
+	6. "C-x C-s C-x C-c"
+
+1.4 
+	3. "M-> C-r < ! ENTER C-SP C-e M-w C-r < / h t m l C-r DA C-y"
+	   "M-> C-r < ! C-r ENTER DA DA DA C-e M-w C-r n o t h i n g C-r DA C-y DA DA DA DA C-a Backspace Backspace Backspace Backspace"
+	   "C-s n o t h i n g RA RA RA RA RA RA RA M-w C-r n o t h i n g C-r Enter M-f C-y"
+	   "C-s s u b m i t DA DA C-a RA C-SP DA DA C-e M-w C-r s u b m i t < / C-r DA DA C-y C-a RA Backspace UA RA Backspace DA DA DA DA Backspace Backspace"
+	   "C-s D E L E T E ENTER C-a RA C-SP C-e M-w C-r E m a c s < / h 2 C-r DA DA C-y"
+	   "C-s e x e r 1 ENTER C-s < ! LA LA C-SP C-e M-w C-r / h 2 C-r C-r C-r DA DA C-y"
+	5. "C-s e x e r 1 ENTER C-s C-s C-s C-s C-s ENTER C-a C-SP M-> C-w"
+	6. "C-u C-/"
+	7. "- - > C-r e x e r 1 ENTER C-a < ! - -"
+	8."M-< M-% < o l > ENTER < o L > ENTER SP SP SP SP SP SP SP" 7 occurences of ol
+
+1.5
+	1. "C-x d ENTER + j u n k ENTER ENTER"
+	2. "C-x C-f h e l l o . c ENTER"
+	3. "M-x c o m p i l e ENTER h e l l o . c SP h e l l o ENTER"
+	4. "C-x b h e l l o - o u t ENTER M-1 M-! . / h e l l o ENTER"
+	5. "C-a C-SP C-e M-w C-x d ENTER DA DA ENTER" to navigate to this file with copied text
+	   "C-s 1 . 5 DA DA DA DA DA DA DA DA C-e C-y" to paste the copied text as following: 
+	   EOF on input
+
+1.6 
+	1. "C-x RA C-x RA"
+	2. "m o s t - n e g a t i v e - f i x n u m C-j" The value for this is -2305843009213683952
+	   "m o s t - p o s i t i v e - f i x n u m C-j" The value for this is 2305843009213693951
+	   These are the limits of the most positive and most negative numbers possible with two's complemet in 62 bits, which seems to imply that these numbers are stored in 62 bits.
+	3. "( r a n d o m SP " 2 0 5 - 3 7 9 - 8 1 1 " ) C-j" my result is -86679193251648013
+	4. "( s e t q SP x SP ( r a n d o m ) ) C-j ( s e t q SP y SP ( r a n d o m ) ) C-j"  
+	   this gave me an x value of 1962129568707666076 and a y value of -1585232737284760333
+	5. "( s e t q SP p SP ( * SP x SP y ) ) C-j" which gave a value p of 587667678376739860
+	   "( s e t q SP r SP ( l o g a n d SP p SP m o s t - p o s i t i v e - f i x n u m ) ) C-j" which gave me a value r of 587667678376739860, the same value of p.
+	6. This r cannot be the correct mathematical answer as it should be negative because one negative and one positive number were multiplied together
+	7. x and y cannot be truly random as the seed is gotten from somewhere within the data of the computer and with enough information can be predicted.
+	8. To find the probability that r is mathematically correct, it is easier to to find the opposite, the chance of overflow which would make r incorrect. The range of positive
+	 and negative integers are roughly symmetrical. For any first random number x, its absolute value must be betwen 0 and most-positive-fixnum. For the result of a product x
+	 and y to lead to overflow, the absolute value of the product of x and y must be greater than most-positive-fixnum. With this, we know that any number with an absolute
+	 value between 0 and most-positive-fixnum has the possibility to cause overflow, and this chance can be found quite easily for any number x. We have the inequality x * y <=
+	 most-positive-fixnum which leads us to y <= most-positive-fixnum/x. This means that for any number with absolute value between 0 and most-positive-fixnum y must be within a range of
+	 1/x of the possible values. For example if x is 2, there is a 50% chance that y will be a number that will cause r, the product of x and y, to be in overflow and show an incorrect
+	 value. Therefore, the chance of avoiding overflow is 1/abs(x) with a given x. The overall chance to avoid overflow would be the average of these probabilities over all possible digits
+	 between most-negative-fixnum and most-positive-fixnum. Generalization however can make this calculation much easier. Given an x with an absolute value of 1000, the chance of a y that
+ 	 avoids overflow is .001. Given this, as well as the fact that a great majority of values possible have an absolute value between 0 and 1000, we can safely assume that for all those
+	 values, the probabilty of avoiding overflow is <= .001. Because the values that have an absolute value of up to 1000 is pretty much negligible compare to those possible digits that
+	 have an absolute value of greater than 1000, we can safely assume that the overall chance that r displays the correct mathematical product of two independent integers x and y is
+	 less than .001, or .1%. This means that r will almost never show the correct mathematical product of both x and y.

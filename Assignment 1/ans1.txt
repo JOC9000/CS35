@@ -1,0 +1,70 @@
+1. man -k printf, where printf is the word that is being searched for within the man page
+
+2. using "which mv" I found that the mv command is located at /usr/bin/mv
+   using "which sh" I found that the sh command is located at /usr/bin/sh
+
+3. There are three programs that fit the specifications as follows, that I found using the command "find ?r":
+   	 ar - used to create, modify, and extract from archives
+	 pr - converts text files for printing
+	 tr - translates or deletes characters
+
+4.First I used the command "ls -l /usr/bin/emacs" to find a symbolic link
+  Then, I used the command "ls -l /etc/alternatives/emacs" to follow the symbolic link
+  Then, "ls -l /usr/bin/emacs-24.3" to follow the symbolic link to see that this was the end of the links.
+  Therefore, the file located at /usr/bin/emacs-24.3 is the actual file being executed when the emacs command is used.
+
+5. The version of /usr/bin/gcc is 4.8.5 where as the regular gcc's version is 10.2.0. The two different programs exist 
+   within the filesystem in seperate directories. The path variable dictates where in the filesystem a program is searched
+   for first, leading to the regular gcc.
+
+6. u+sx gives the user permissions to execute(x) and to set user ID on execution(s)
+   o-w takes away the permission for others to write a file
+
+7. I used the command "find /usr/local/cs -type d -mtime > ~/Desktop/CS35/countMod" to get all directories and subdirectories 
+   within the given path that were modified within the last 28 days and stored them all in a file called countMod.
+   I then used the command "wc -l ~Desktop/CS35/countMod" to find that there were a total of 580 directories within /usr/local/cs that had been modified in the last 28 days.
+   Then I used emacs to get a list of the first five directories found listed in countMod, which I will list:
+   	/usr/local/cs
+	/usr/local/cs/src/bash
+	/usr/local/cs/src/bash/RCS
+	/usr/local/cs/src/grep/
+	/usr/local/cs/src/grep/RCS
+
+8. to find out how to single out symbolic links I used: "find man"
+   then to find the directory of find "which find"
+   to make sure it was not a symbolic link "ls -l /usr/bin/find"
+   then to single out and later count the symbolic links "find /usr/bin type -l > ~/Desktop/CS35/storesymbolic"
+   "wc -l ~/Desktop/CS35/storesymbolic" to count the amount of symbolic links
+   to give a total of 280 symbolic link files in the same directory as find.
+
+9. "ls -a -t -l /usr/lib64" to see all files, sort them by time such that oldest is at bottom, and view them neatly 
+   which shows us that the oldest existing file in /usr/lib64 is librom1394.so.0.3.0
+
+10."man locale" to view the description of locale
+   The description of locale states that "locale displays information based on the settings of the environment variables that control the locale"
+
+11. In emacs:"C-h a" then "downcase RET" to find the following commands:
+       downcase-dwim
+       downcase-region
+       downcase-word
+
+12. In emacs:"C-h r" then "C-s" with word key repeatedly to search for the Key Index, then "C-s" to find the command corresponding to C-M-r
+    C-M-r is a regular expression search backwards through a file
+    C-M-s is a regular expression search forwards through a file
+    C-M-S scrolls down on another buffer without having to switch to it
+    C-M-SPC creates a mark that can be extended with further repeating of the command
+    C-M-t switchs the positions of the previous balanced expression and the next
+    C-M-u moves up in a parenthesis structure
+    C-M-u (Dired) takes you up to the parent directory's header line
+    C-M-v scrolls up on another buffer without having to switch to it
+
+13.In emacs: "C-h r" then "C-s" to look for Key Index then "C-s" again to find the "C-g" command
+      C-g gets out of a partially filled command and stops commands still running
+
+14.  In emacs: "C-h r" then "C-s" to look for Key Index then "C-s" again to find the yank command
+     To invoke the yank command use C-y which yanks killed text, almost like pasting cut information
+
+15.Use "ls -l /usr/bin" in terminal and "C-x d" then input in directory/usr/bin to compare information. The main differences I see are:
+       	 In emacs, a file and its symbolic link are in the same color whereas shell commads colors them differently
+	 In emacs, only files with symbolic links have color while more of the files in the shell command list have color
+
