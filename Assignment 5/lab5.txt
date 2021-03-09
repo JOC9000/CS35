@@ -1,0 +1,49 @@
+Starting off, I downloaded the version of coreutils linked in the the assignment page with a
+wget. Just like last assignment I had to extract the files from the tar with this command:
+
+      tar -xJvf coreutils-with-bug.tar.gz
+
+Except that the -J option doesn't apply in this case since the file extension is gz, not xz,
+which -J filters for, so:
+
+      tar -xvf coreutils-with-bug.tar.gz
+
+Then I entered the archive and changed the configure file just like last time:
+
+     ./configure --prefix="/u/cs/ugrad/contrera/Desktop/CS35/assign5/installdir"
+
+which ran fine. Them I ran make which seemed to go fine until an error was spit. Apparently two
+funcitons within utimecmp.c and stat.h share the same name futimens. I assumed this was the 
+error described in the spec and ran wget to download the renaming patch. After running emacs,
+I saw that there is no prefix for the paths in the diff file so I ran this in the archive:
+
+  patch  -p0 < coreutils.diff
+
+After this I ran make, then make install and all went fine. I copied the commands from the spec
+of the bugged ls command. When comparing the output of the coreutils ls I just built to the 
+one on the spec I see that the file "created" far in the past appears at the top of the list,
+when it should be appearing at the bottom. After looking at the hint slides, I decided to look
+at some compare functions within ls.c with emacs. With this I found a multitude of compare
+functions were defined. Some said there were comparing atime or mtime or ctime they all went
+to specific functions like cmp_atime/ctime/mtime. I see that they all use timespec_cmp, so I 
+looked at the includes and found a stat-time.h file, which has an include to a a timespec.h
+file, which has the timespec_cmp funciton. The hints from the slides makes me believe that
+the issue stems from overflow in this function. So I made a copy of this file, and decided 
+to change it to conditionals as said in the hints. Then I used the following to create
+the lab5.diff file:
+
+    diff -u timespec.h coreutils-with-bug/lib/timespec.h > lab5.diff
+
+Except at first I mixed up the forders of the files for the correct diff so I had to remake the
+diff and use the command again:
+
+       patch -p1 lab5.diff
+
+The file seemed to be fixed so I installed the new fixed version, then ran the commands again.
+The output matched! Which means that I fixed the issue and am done with the lab. So I removed
+the files.
+
+Then, I had to test the same using the SEASnet Linux servers versions of touch and ls to 
+report on how that works, and the ls seems to compound on the issue I found with the buggy
+coreutils. Not only is the wwi stamp in the wrong sorted order, it shows up as having been
+created in 2054!!
