@@ -1,0 +1,74 @@
+1. To investigate disk space and usage more succintly I found it necessary to find a better
+command than ls with an option to see file. With a google search and some reading I found
+the du(disk usage) command. This is much better than ls as ls seemed to keep giving sizes
+of 4000, I assume size of metadata. With the du command I can actually get the full size of a 
+directory easily using the -sh commands. So I used it at the top directory of ~eggert/src/gnu/
+emacs-CS-35L which gabe me a size of 577M. With ls -a I can see that there are .git, 
+.gitattributes, .gitignore, and .gitlab-ci.yml files that ssem to correspond to git. 
+Their disk usge is as follows:
+.git - 415M
+.gitattributes - 4.0K
+.gitignore - 8.0K 
+.gitlab-ci.yml - 4.0K
+This prettry much rounds to 415M so I can confidently say that the informatin to represent the 
+Git repositor takes up about 415M. And since 577M total - 415M is 162M, I can also say that
+the working files in the directory only take up 162M. The file that seems to take up the most 
+space is the .git/objects/pack directory. The files in this directory store the changes from
+one commit to the nextin a compressed format. Since last assignment, I 've known emacs has had
+a history since the 80s so the amount of data that stores that history of course must be quite
+large, even when compressed.
+
+2. I was unsure of what local and remote branches even were so I made a Piazza post. Local are
+branches on the local machine and remote branches are on the repo that everybody pulls from.
+After a quick google, I found that invoking git branch with no options lists all local branches.
+And using the -a option lists only remote branches. So I used this in tandem with wc to get that
+there are 176 local branches, and 353 remote branches.
+
+3. To see remote repositories I used git remote -v. This gave me the following, both fetch and
+pull:
+origin /u/cs/fac/eggert/src/gnu/emacs
+savannah https://git.savannah.org/git/emacs.git
+
+4. Using the following command, I was able to find the exact 10 local branches most recently
+commited to:
+	 git for-each-ref --sort=-committerdate refs/heads --count=10
+Where for-each-ref iterates through all the branches in the directory I gave it(refs/heads, 
+local branches) and the sort option sort by most recently commited. The count option makes the
+solution easier to get just the ten requisite branches which are the following( I will paste
+the output here for simplicity's sake:
+104b68b670eb6de6614c562ae6b18c009b20584f commit	refs/heads/master
+d2873706749ef68803e79bab6109a534f4c9d23a commit	refs/heads/scratch/joaot/make-completion-at-point-function
+dd3fa9411a28175f9a1a984a69cfa7162023c5df commit	refs/heads/feature/windows-with-utils
+8f22251e595d7598d6643b0d24bf5f409dc59fa8 commit	refs/heads/scratch/completion-api
+8a4de19dfb52551a65c360a9346ede137d0fc6e8 commit	refs/heads/scratch/a-modest-completion-redesign-proposal
+2b0f589134d9427a96ab8cf0d8473715740984ef commit	refs/heads/scratch/fido-mode
+924a4201d24c10c48db920815ebf98dfaadc1e85 commit	refs/heads/feature/gnus-select2
+7a10082093791f0e035e4f9f95a774a7be1cd586 commit	refs/heads/feature/extend_face_id
+079461b360a2467ff4ab2ec57516c6f9e45f50fe commit	refs/heads/scratch/jit-lock-antiblink-cleaned-up
+55dcd32ad2209dc34bfb6b713bf73be9bf4c4cb2 commit	refs/heads/emacs-26
+
+5. Using:
+    git rev-list --count master
+it's clear that the master branch has 141268 commits in total.
+
+6. Using git rev-list again and the hint slides, I get
+   141268 / 145595 = .9702, so about 97.02% of all commits are also in the master branch.
+
+7. I used this command:
+   git shortlog master -s -n --after=2013-01-01
+to get these results as the ten top contributors on or after Jan 1, 2013:
+3922 Eli Zaretskii
+3792 Glenn Morris
+3784 Paul Eggert
+1887 Stefan Monnier
+1833 Lars Ingebrigsten
+1671 Michael Albinus
+ 671 Dmitry Gutov
+ 604 Noam Postavsky
+ 568 Juri Linkov
+ 506 Alan Mackenzie
+
+8. The following hashes from the assignment page are merge commits:
+   0c06b93c1e467debd401eb0b3be4652fde14fa95
+   abcb2e62dae6aa26308f7ac9efc89247f89cbe65
+   98ac36efe4ce4bd3a0bca76fc73ce6c7abaa4371

@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<!-- saved from url=(0064)https://web.cs.ucla.edu/classes/fall20/cs35L/assign/assign9.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Assignment 9. Change management spelunking and implementation</title>
+
+<link rel="author" href="mailto:eggert@cs.ucla.edu">
+<link rel="license" href="https://web.cs.ucla.edu/classes/fall20/cs35L/assign/copyright.html">
+</head>
+
+<body>
+
+<h1>Assignment 9. Change management spelunking and implementation</h1>
+
+<section>
+<h2>Useful pointers</h2>
+
+<ul>
+  <li>Scott Chacon, <a href="https://git-scm.com/book/en/v2">Pro Git,
+  2nd ed.</a> (2014), §§2, 3, 7.1–7.8, 7.11,
+  10.1–10.5.</li>
+</ul>
+</section>
+
+<section>
+<h2>Laboratory: Git spelunking</h2>
+
+<p>Consider the Git repository and working files in the directory
+  <samp>~eggert/src/gnu/emacs-CS-35L</samp> on the SEASnet GNU/Linux hosts.
+  For this repository, answer the following questions, using Git
+  commands and/or scripts of your own devising. For each question,
+  record which commands you used; if you wrote and used a script,
+  include a copy of the script.</p>
+
+<ol>
+  <li>How much disk space is used to represent the working files in
+    this directory? How much is used to represent the Git repository?
+    What file or files consume most of the repository space and
+    why?</li>
+
+  <li>How many branches are local to the repository? How many are remote?</li>
+
+  <li>How many repositories are remote to this repository,
+    and where are they?</li>
+
+  <li>What are the ten local branches most recently committed to? List
+    their names in order of commit date, most recent first.</li>
+
+  <li>How many commits are in the master branch?</li>
+
+  <li>What percentage of the commits that are in any branch, are also
+    in the master branch?</li>
+
+  <li>Which ten people authored the most master-branch commits
+    that were committed in the year 2013 or later, and how
+    many commits did each of them author during that period?</li>
+
+  <li>Use the <samp>gitk</samp> command to visualize the commit graph
+    in this repository. If you are SSHing into SEASnet, you’ll need to
+    log in via <samp>ssh -X</samp> or (less securely) <samp>ssh
+    -Y</samp>.  Draw a diagram relating the following commits to each
+    other. You need not list every single
+    intervening commit individually; you can simply
+    use <a href="https://en.wikipedia.org/wiki/Ellipsis">ellipses</a>.
+
+    <pre><samp>        4ea37c2b8b0c5a68fde59770c3536195e0972217
+	977cd6cb28a37744966ec62f70cf62659f6f302a
+	625cee531623feddbe3174fad52c7db96ec60bb3
+	5490ccc5ebf39759dfd084bbd31f464701a3e775
+	0c06b93c1e467debd401eb0b3be4652fde14fa95
+	820739bbb572b30b6ce45756c9960e48dca859af
+	00e4e3e9d273a193620c3a4bb4914e555cb8e343
+	49cd561dc62ea6b3fbedab7aef0f020733f4cf09
+	abcb2e62dae6aa26308f7ac9efc89247f89cbe65
+	98ac36efe4ce4bd3a0bca76fc73ce6c7abaa4371</samp></pre>
+  </li>
+</ol>
+
+<p>As usual, keep a log in the file <samp>lab9.txt</samp> of what you
+do in the lab so that you can reproduce the results later. This should
+not merely be a transcript of what you typed: it should be more like a
+true lab notebook, in which you briefly note down what you did and
+what happened. Your lab note should contain the abovementioned
+record of the scripts you used.</p>
+
+</section>
+
+<section>
+  <h2>Homework: Topologically ordered commits</h2>
+
+  <p>
+    Given a git repository, the commits can be thought of as having
+    the structure of a directed acyclic graph (DAG) with the commits
+    being the vertices. In particular, one can create a directed edge
+    from each child commit to each of its parent
+    commits. Alternatively, one can create a directed edge from each
+    parent to each of its children. Note that if a commit is a merge
+    commit, it will have two or even more parents. In that case, one has to
+    consider all parents.
+  </p>
+
+  <p>
+    Follow these five steps and implement <code>topo_order_commits.py</code>
+    using <code>/usr/local/cs/bin/python3</code> on the SEASnet GNU/Linux
+    servers.
+  </p>
+
+  <ol>
+    <li>
+      <em>Discover the <samp>.git</samp> directory.</em> Inside a directory,
+      when the script <samp>topo_order_commits.py</samp> (which
+      doesn’t have to reside in the same directory) is invoked, the
+      script should first determine where the top level Git directory
+      is. The top level Git directory is the one containing
+      the <samp>.git</samp> directory. One can do this by looking
+      for <samp>.git</samp> in the current directory, and if it
+      doesn’t exist search the parent directory, etc.
+      This discovery process should only go up, and never descend into
+      a child directory.  Output a diagnostic
+      ‘<samp>Not inside a Git repository</samp>’ to standard error
+      and exit with status 1
+      if <samp>.git</samp> cannot be found when the search went all
+      the way to the <samp>/</samp> directory.
+    </li>
+
+    <li>
+      <em>Get the list of local branch names.</em>
+      Figure out what the different directories inside <samp>.git</samp>
+      do, particularly the refs and objects directories.
+      Beware of branch names with forward slashes. Read
+      <a href="https://git-scm.com/book/en/v2/Git-Internals-Git-Objects">§10.2 Git Internals – Git Objects</a> and
+      <a href="https://git-scm.com/book/en/v2/Git-Internals-Git-References">§10.3
+      Git Internals – Git References</a>. One can use
+      the <a href="https://docs.python.org/3/library/zlib.html"><samp>zlib</samp>
+	library in Python</a> to decompress Git objects.
+      To simplify this assignment, you can assume that the repository
+      does not use packfiles (see
+      <a href="https://git-scm.com/book/en/v2/Git-Internals-Packfiles">§10.4
+      Git Internals – Packfiles</a>), i.e., that all its
+      objects are loose.
+    </li>
+
+    <li>
+      <em>Build the commit graph.</em> Each commit can be represented as an
+      instance of the CommitNode class, which you can define as follows,
+      and which you are also free to modify or not use at all:
+      <pre><samp>class CommitNode:
+    def __init__(self, commit_hash):
+        """
+        :type commit_hash: str
+        """
+        self.commit_hash = commit_hash
+        self.parents = set()
+        self.children = set()
+      </samp></pre>
+      <p>
+      The commit graph consists of all the commit nodes from
+      all the branches. Each commit node might have multiple
+      parents and children.
+      </p>
+      <p>
+	In particular, for each branch, perform a depth-first search
+	traversal starting from the branch head (i.e., the commit
+	pointed to by the branch), to establish the parent-child
+	relationships between the commit nodes. The traversal should
+	trace through the parents, and for every possible pair of
+	parent and child, add the child hash to the parent node's
+	children, and add the parent hash to the child node's
+	parents. The leaf nodes for each branch will be the root
+	commits for that branch, where the leaf nodes are the nodes
+	without any parents. Let <samp>root_commits</samp> be the
+	union of all the leaf nodes across all the branches. If a
+	commit is not reachable from any of the branch heads, it
+	should not be part of the commit graph.
+      </p>
+    </li>
+
+    <li>
+     <em>Generate a topological
+     ordering of the commits in the graph.</em> A topological ordering for our
+     case would be a total ordering of the commit nodes such that all the
+     descendent commit nodes are strictly less than the ancestral commits,
+     where nodes in <samp>root_commits</samp> are
+     the oldest ancestors.  One way to generate a
+     topological ordering is to use a depth-first
+     search; see <a href="https://en.wikipedia.org/wiki/Topological_sorting">Topological sorting</a>.
+    </li>
+
+    <li>
+      <p>
+	<em>Print the commit
+	hashes in the order generated by the previous step,
+	from the least to the greatest.</em>
+	If the next commit to be printed is not the
+	parent of the current commit, insert a “sticky end” followed
+	by an empty line before printing the next commit. The “sticky
+	end” will contain the commit hashes of the parents of the current
+	commit, with an equal sign “<samp>=</samp>” appended to the last hash.
+	These hashes of the parents, if any, can be printed in any order
+	separated by whitespace. If there are no parents,
+	just print an equal sign, “<samp>=</samp>”.
+	This is to
+	inform us how the fragments can be “glued”
+	together.
+      </p>
+      <p>
+	On the other hand, if an empty line has just been printed,
+	before printing the first commit C in a new segment, print a
+	“sticky start” line starting with an equal sign,
+	“<samp>=</samp>”, followed by the hashes of the children of C,
+	if any, on the same line in any order and separated by
+	whitespace, so that we know which commits led to commit
+	C. There is no whitespace after the equal sign.
+      </p>
+      <p>
+	Furthermore, if a commit corresponds to a branch head
+	or heads, the branch names should be listed after the commit in
+	lexicographical order, separated by white space.
+	Note that this rule does not apply to the hashes in the sticky
+	starts or sticky ends.
+      </p>
+      <p>
+	The commit hashes in the sticky starts and sticky ends are not
+	considered as part of the sequence of topologically ordered
+	commit output. They are printed only as a visual guide. So
+	even if a commit hash has already appeared in a sticky start
+	or sticky end, it still must be printed as part of the
+	normal sequence of topologically ordered commit output.
+      </p>
+    </li>
+  </ol>
+
+  <p>
+  <em>Example 1.</em> Consider the following commits
+where c3 is a child of c1, and c5 is a child of c4:
+  </p>
+
+  <pre><samp>  c0 -&gt; c1 -&gt; c2 (branch-1)
+         \
+          c3 -&gt; c4 (branch-2, branch-5)
+                 \
+                  c5 (branch-3)</samp></pre>
+
+  <p>
+    A valid topological ordering from the least to the greatest will
+    be (c5, c4, c3, c2, c1, c0) which should give the following output
+    (assuming the commit hash for cX is hX, and the triple grave
+    accents (<samp>```</samp>) are not part of the output but merely
+    indicate the start and end of the output lines):
+  </p>
+
+  <pre><samp>  ```
+  h5 branch-3
+  h4 branch-2 branch-5
+  h3
+  h1=
+
+  =
+  h2 branch-1
+  h1
+  h0
+  ```</samp></pre>
+
+  <p>
+    A equally valid
+    topological ordering from the least to the greates will be
+    (c2, c5, c4, c3, c1, c0), which should
+    give the following output:
+  </p>
+
+  <pre><samp>  ```
+  h2 branch-1
+  h1=
+
+  =
+  h5 branch-3
+  h4 branch-2 branch-5
+  h3
+  h1
+  h0
+  ```</samp></pre>
+
+  <p><em>Example 2.</em> For the following commits where c6 is a
+    merge commit with parents c2 and c4:
+
+</p><pre><samp>  c0 -&gt; c1 -&gt; c2 -&gt; c6 (branch-1)
+	 \         /
+	  c3 -&gt; c4</samp></pre>
+
+A topological ordering is (c6, c2, c4, c3, c1, c0), and the
+corresponding output should be:
+
+<pre><samp>  ```
+  h6 branch-1
+  h2
+  h1=
+
+  =h6
+  h4
+  h3
+  h1
+  h0
+  ```</samp></pre>
+
+  <p>
+    <em>Implementation notes.</em>
+  </p>
+  <ol>
+    <li>
+      Do not invoke any Git commands in any way. For example, do not
+      use Python subprocesses to call Git.
+    </li>
+
+    <li>
+      The output of <samp>topo_order_commits.py</samp> should be
+      deterministic. For a given Git repository, even though there
+      might be multiple possible ways to perform DFS, multiple valid
+      topological orderings and multiple valid outputs, different
+      invocations of <samp>topo_order_commits.py</samp> should produce
+      identical outputs. For example, since the iteration order on a
+      set <samp>s</samp> in Python is not deterministic, one way to
+      ensure determinism is to call <samp>sorted(s)</samp> which will
+      give a sorted list.
+    </li>
+
+    <li>
+      Use only the modules in the Python Standard Library. In fact,
+      <samp>os</samp>, <samp>sys</samp>, and <samp>zlib</samp> are the
+      only libraries you need.
+    </li>
+
+    <li>
+      Points might be deducted if the naming of local variables and
+      functions are not
+      in <a href="https://en.wikipedia.org/wiki/Snake_case">snake
+      case</a>.
+    </li>
+  </ol>
+
+
+  <p>
+    <em>Testing.</em>  Please
+    use <a href="https://github.com/Rustinante/topo-ordered-commits-test-suite">our
+    test suite</a> to make sure you are on the right
+    track. The <samp>README</samp> file contains instructions on how
+    to use it. Note that passing all the test cases in the test suite
+    does not guarantee a completely correct implementation.
+  </p>
+
+</section>
+
+<section>
+<h2>Submit</h2>
+
+<p>Submit two files:</p>
+
+<ul>
+  <li>The file <samp>lab9.txt</samp> as described
+    in the lab.</li>
+  <li>The file <samp>topo_order_commits.py</samp>
+    as described in the homework.</li>
+
+</ul>
+
+<p>The <samp>.txt</samp> file should be an ASCII text file, with no
+carriage returns.</p>
+</section>
+
+<footer>
+<hr>
+<small>
+ © 2019, 2020 <a href="https://web.cs.ucla.edu/classes/fall20/cs35L/mail-eggert.html">Paul Eggert</a> and Aaron Zhou.
+ See <a href="https://web.cs.ucla.edu/classes/fall20/cs35L/copyright.html">copying rules</a>.<br>
+
+ $Id: assign9.html,v 1.37 2020/03/27 22:30:29 eggert Exp $
+</small>
+</footer>
+
+
+
+</body></html>
