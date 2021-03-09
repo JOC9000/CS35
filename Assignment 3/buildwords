@@ -1,0 +1,9 @@
+#! /usr/bin/bash
+
+x=$(cat $1 | tr -d "?" | tr "\`-" "'\ " | tr [:upper:] [:lower:])
+x=$(echo "$x" | sed "s/<u>//g" | sed "s/<\/u>//g") 
+x=$(echo "$x" |  grep -E "<td[^>]*>[pk'mnwlhaeiou ]+<\/td>")
+x=$(echo "$x" | sed -E "s/<td[^>]*>//g" | sed "s/<\/td>//g")
+x=$(echo "$x" | tr -s [:blank:] '[\n*]' | sort -u)
+echo "$x"
+   

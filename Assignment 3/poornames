@@ -1,0 +1,127 @@
+#!/usr/bin/env bash
+
+IFS=$'\n'
+#IFS is set to newline to be able to collect poor /
+#names that have a space in them
+export LC_ALL=C
+
+#a series of checks to detect errors in arguments
+if [ $# -gt 2 ]; then
+   echo "too many arguments" 1>&2
+   exit 1
+
+elif [ $# -eq 0 ]; then 
+    directory="."
+
+elif [ $# -eq 1 ]; then
+    if [ "$1" == "-r" ]; then
+        directory="."
+
+    else
+	directory=$(find "$1" -maxdepth 0 -type d)
+    fi
+
+elif [ $# -eq 2 ]; then
+    if [ "$1" != "-r" ]; then
+	echo "given two arguments, first must be recursive option -r" 1>&2
+	exit 4
+    fi
+
+    if [ "$2" == "-r" ]; then
+	echo "given two arguments, first must be recursive option -r" 1>&2
+	exit 4
+    fi
+
+    directory=$(find "$2" -maxdepth 0 -type d)
+fi
+
+#a check to see if given directory name is a valid directory
+if [ "$directory" ==  "" ]; then
+    echo "not a directory!" 1>&2   
+    exit 2
+fi
+
+#a check to add a slash to the end of a path if it does not have on
+slashCheck=$(echo "$directory" | grep -E "\/$")
+if [ "$slashCheck" == "" ]; then
+    directory=$(echo "$directory/")
+fi
+
+#this should get all subdirectories from the given directory /
+#and execute poornames on each of them
+if [ "$1" == "-r" ]; then 
+    find "$directory" -mindepth 1 -type d -exec "$0" {} \;
+fi
+
+#the following command retrieves all filenames in $directory,
+#then removes the path, leaving only the filename. These are then
+#sorted for ease later on.
+#The regex here is ".+\/" which captures all text up to a last slash.
+#Since find does not append a slash to directory files this is a 
+#quick way to retrieve the filenames that will be checked.
+files=$(find "$directory" -mindepth 1 -maxdepth 1 | sed -r "s/^.+\///g" | sort -f)
+
+#captures filenames that do not comply with 1st guideline
+#the following statements do the same for each guideline
+poor=$(echo "$files" | grep -E "[^._A-Za-z-]")
+
+#check for filenames starting in -
+poor1=$(echo "$files" | grep -E "^-")
+
+#checks for filenames starting in .
+poor2=$(echo "$files" | grep -E "^\.")
+
+#checks for filenames longer than 14 characters
+poor3=$(echo "$files" | grep -E ".{15,}")
+
+
+#To avoid N^2 operations checking each filename against
+#every other filename, I presorted the filenames in files.
+#Depending on the locale, this means that capitalized letters
+#appear right next to uncapitalized ones. I take advantage of this 
+#and then only check the current $word in files to the prior word that 
+#was checked. The prompt is unclear about which locale is used, so
+#I assumed a regular sort was suitable. Results of this are stored in 
+#poor4
+ 
+poor4=""
+pastword=""
+for word in $files; do
+    #to compare if they differ only by case, I translate all upper chars
+    #to lower chars
+    wordcheck1=$(echo "$word" | tr "[:upper:]" "[:lower:]")
+    wordcheck2=$(echo "$pastword" | tr "[:upper:]" "[:lower:]")
+
+    if [ "$wordcheck1" == "$wordcheck2" ]; then
+	    poor4=$(echo "$poor4"; echo "$word"; echo "$pastword")
+    fi
+
+    pastword="$word"
+done
+
+#append all poor variables to fullpoor for simplicity
+fullpoor=$(echo "$poor"; echo "$poor1"; echo "$poor2"; echo "$poor3"; echo "$poor4")
+fullpoor=$(echo "$fullpoor" | sort -u -b)
+
+fullestpoor=""
+for word in $fullpoor; do
+
+    #checkDir check if a file is a directory
+    if [ -d "$directory$word" ]; then
+	word=$(echo "$word/")
+    fi
+
+    if [ "$fullestpoor" == "" ]; then
+	fullestpoor=$(echo "$directory$word")
+    else
+	fullestpoor=$(echo "$fullestpoor"; echo "$directory$word")
+    fi
+done
+
+#the result is sorted and any empty lines are removed
+fullestpoor=$(echo "$fullestpoor" | sort -u -b | grep -E -v "^$")
+#a result is only given is fullest poor is not empty,
+#to prevent empty lines
+if [ "$fullestpoor" != "" ]; then
+    echo "$fullestpoor"
+fi
