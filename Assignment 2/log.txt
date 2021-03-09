@@ -1,0 +1,30 @@
+Treating seas server 09 as the client and 07 as the server:
+1. I logged in to lnxsrv09
+2. Generated a key with "ssh-keygen", call it CS35L and located in ~/.ssh
+3. Navigate to /.ssh to verify both public and private keys are present
+4. Log out of lnxsrv09 and log in to lnxsrv07
+5. After noticing that authorized_keys file does not exist in /.ssh, create with "touch authorized_keys"
+   (can be skipped if already exists, it did not for me)
+6. Use "cat CS35L.pub >> authorized_keys" to append the public keys to authorized_keys file
+7. Log out of lnxrv07 and back into lnxsrv09
+8. use "ssh -i ~/.ssh/CS35L contrera@lnxsrv07.seas.ucla.edu" to ssh into 07 with private key
+9. Enter passphrase when prompted(mine was phrase)
+10. Type "exit" to go back to lnxsrv09
+11. Use "eval $(ssh-agent)" to set up ssh-agent
+12. Use "ssh-add ~/.ssh/CS35L" to add private key to ssh-agent
+13. Use "ssh contrera@lnxsrv07.seas.ucla.edu" to see that no password or phrase is needed.
+
+Port Forwarding:
+1. Download and set-up XMing(putty user on Windows)
+2. Before entering the server, go into SSH settings, X11, and allow X11 forwarding
+3. Enter lnxsrv06
+4. Configure ssh-agent as described earler
+5. Test xeyes in lnxrv06
+6. SSH into lnxsrv01 "ssh -X contrera@lnxsrv01.seas.ucla.edu"
+7. Test xeyes now and see it still works
+
+Multihop SSH:
+1. Log in to lnxsrv06
+2. Configure ssh-agent as described above
+3. Use "ssh -A -t contrera@lnxsrv01.seas.ucla.edu ssh -A -t contreras@lnxsrv02.seas.ucla.edu" to  "hop" from srv 06 to 01 to 02.
+   (did not use ssh config file as that would take longer to learn well than theset-up with this method)

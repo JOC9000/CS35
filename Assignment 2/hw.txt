@@ -1,0 +1,26 @@
+Generate a key pair:
+Use "gpg2 --genkey" and fill in prompts, wiht username as full name "Jorge Contreras"
+
+Export public key:
+Use "gpg2 --export -a "Jorge Contreras" > ~/Desktop/CS35/Week2/hw-pubkey.asc" to export the public key in ascii format as described by the webpage.
+
+Create detached signature:
+1. Use "cd ~/Desktop/CS35/Week2" to navigate to where I will store file
+2. Use "gpg2 -b hw-pubkey.asc" to create detached sig file with original file name with .sig appended
+3. Use "mv hw-pubkey.asc.sig hw-pubkey.sig" to rename the file to format established on assignment page
+
+Questions:
+
+1. Considering that all the work to generate the keys and store them is being stored on the remote server, 
+seeing each byte on the network would only clue the attackers that some key has been generated, since at no point in the process
+ of asking for it to be created do we ask for it specifically. Becuase of this the network is still secure through SSH.
+   (1) Tapping the keyboards does not change this as we simply request the serer create the key, and having that information alone is not enough to crack the network.
+   (2)If the attackers had access to the USB and therefore the state of the system, and somehow knew how the keys were generated, there is potential that they could
+know the key. However, this is only possible if they knew the exact commands we would enter and in what order, since executing commands changes the state of the
+system and chages what would be random for the computer. However, this is extremely unlikely and to combat this one could simply change the state of the system
+with a command like the one to help the
+random number generator to gain enough entropy. 
+
+2. The gpg2 --verify command simply makes sure that the provided signature corresponds with the data file provided. If any pair that matches this is provided it will
+spit out "Good Signature" and the information provided to generate the keys. Since this information can be used many times it can be used to fool a user. However,
+by checking and verifying the RSA key ID, one can avoid being fooled with verify by possibly planted files by an attacker.

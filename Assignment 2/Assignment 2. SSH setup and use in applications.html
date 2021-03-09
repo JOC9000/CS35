@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<!-- saved from url=(0064)https://web.cs.ucla.edu/classes/fall20/cs35L/assign/assign2.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Assignment 2. SSH setup and use in applications</title>
+
+<link rel="author" href="mailto:eggert@cs.ucla.edu">
+<link rel="license" href="https://web.cs.ucla.edu/classes/fall20/cs35L/assign/copyright.html">
+</head>
+
+<body>
+
+<h1>Assignment 2. SSH setup and use in applications</h1>
+
+<section>
+<h2>Laboratory</h2>
+
+<p>Most likely you’ll need to do this lab entirely on SEASnet,
+  treating one of the SEASnet GNU/Linux hosts as if it were your
+  personal machine, and treating the others hosts as remote
+  servers. Alternatively, if you have a bunch of ssh-capable machines
+  of your own, you can do the lab there. Either way, specify in your
+  log which machines you used.</p>
+
+<p>Use <a href="http://www.openssh.org/">OpenSSH</a> to establish
+convenient logins, so you should use <a href="http://www.openbsd.org/cgi-bin/man.cgi?query=ssh-agent">ssh-agent</a>
+on your host to manage authentication. That is, you should be able to
+log out of a host (dropping all your connections to it),
+then log back in, type your passphrase once to
+<samp>ssh-agent</samp>, and then be able to use <samp>ssh</samp> to
+connect to any of your other hosts, without typing any passwords
+or passphrases.</p>
+
+<p>You should also use port forwarding so that you can run a command
+on a remote host that displays on your host. For example, you should
+be able to log into a remote host, type the command
+<a href="https://www.x.org/releases/X11R7.5/doc/man/man1/xeyes.1.html"><samp>xeyes</samp></a>,
+and get a graphical window on your display.
+You will need to use <a href="https://askubuntu.com/questions/35512/what-is-the-difference-between-ssh-y-trusted-x11-forwarding-and-ssh-x-u"><samp>ssh
+-X</samp> and/or <samp>ssh -Y</samp></a> when you use port
+forwarding.
+</p>
+
+<p>Finally, you should be able to do a multihop or “daisy-chain”
+  connection conveniently.  For example, you should be able
+  to <samp>ssh</samp> into <samp>lnxsrv07</samp>, and then
+  from <samp>lnxsrv07</samp> to <samp>lnxsrv09</samp>, and so on. You
+  want these daisy chains to be convenient as possible. On SEASnet
+  this is merely an exercise, since you can connect to any one of
+  the <samp>lnxsrv*</samp> hosts as well as any of the others; but in
+  the real world these sorts of connections are useful when for
+  security reasons one cannot connect to an inner server
+  directly. Investigate <a href="http://sshmenu.sourceforge.net/articles/transparent-mulithop.html">Transparent
+  Multi-hop SSH</a> and see which technique works best for you.</p>
+
+<p>Keep a log of every step you personally took during the laboratory
+to configure your or your team members' hosts, and what the results of
+the step were. The idea behind recording your steps is that you should
+be able to reproduce your work later, if need be.</p>
+</section>
+
+<section>
+<h2>Homework</h2>
+
+<p>On the SEASnet GNU/Linux servers,
+use <a href="http://gnupg.org/">GNU Privacy Guard</a>'s shell
+commands to create a key pair. Use GPG version 2.
+Export the public key, in ASCII format, into
+a file <samp>hw-pubkey.asc</samp>. Use this key to create a detached
+signature for your submission so that the commands described below can
+successfully verify it. The detached signature file should be named
+<samp>hw-pubkey.sig</samp> and it will be a signature for <samp>hw-pubkey.asc</samp>.</p>
+
+<p>If you are creating a key pair on the SEASnet GNU/Linux servers,
+you may exhaust its entropy pool as described in
+<a href="https://bugs.launchpad.net/ubuntu/+source/gnupg/+bug/706011">Launchpad
+bug 706011</a>. The symptom will be a diagnostic saying "It is a good
+idea to perform some other action (type on the keyboard, move the
+mouse, utilize the disks) during the prime generation; this gives the
+random number generator a better chance to gain enough entropy."
+Since you can't use the keyboard or mouse on the SEASnet servers,
+you'll have to use the disks, for example, by using the
+<samp>find</samp> command to copy every readable file to
+<samp>/dev/null</samp>; this is something that you can do
+in another session that is logged into the same machine.
+Please remember to interrupt the <samp>find</samp> once the
+key pair is generated, so that you don't tie up the server
+unnecessarily.</p>
+
+<p>Briefly answer the following questions.</p>
+
+<ol>
+<li>
+Suppose the other teams really had been observing all the bytes going
+across the network in your lab exercise.
+Is your resulting network still secure?  If so,
+explain why, and explain whether your answer would change if (1) you
+assumed the other teams had also tapped your keyboards after you completed all
+client-server setup and had thereby obtained your team's keystrokes during
+later operation,
+or (2) you are booting off USB
+and you assume the other teams temporarily had physical control of the
+USB. If not, explain any weaknesses
+of your team's setups, focusing on possible attacks by such outside
+observers.</li>
+
+<li>
+Explain why the <samp>gpg2 --verify</samp> command in the following
+instructions doesn't really verify that you personally created the
+file in question. How would you go about fixing this problem?</li>
+
+</ol>
+</section>
+
+<section>
+<h2>Submit</h2>
+
+<p>Submit the following files:</p>
+<ol>
+<li>The file <samp>hw-pubkey.asc</samp> as described above.</li>
+<li>The file <samp>hw-pubkey.sig</samp> as described above.</li>
+<li>The file <samp>log.txt</samp> which is a copy of your lab log.</li>
+<li>The file <samp>hw.txt</samp>, which is a copy of your homework
+log. It will contain the commands used to generate hw-pubkey.asc and
+hw-pubkey.sig. Also include the answers to the two homework
+questions.</li>
+</ol>
+<p>
+<samp>hw.txt</samp> and <samp>log.txt</samp> should both be ASCII text files with no more
+than 200 columns per line.</p>
+
+<p>The following shell commands should work:</p>
+
+<pre><samp>mkdir -m go-rwx .gnupg
+gpg2 --homedir .gnupg --import hw-pubkey.asc
+awk '200 &lt; length' log.txt hw.txt # This line should output nothing.
+</samp></pre>
+
+<p>The <samp>gpg2 --verify</samp> command should say "Good
+signature". The last <samp>awk</samp> command should output
+nothing.</p>
+</section>
+
+<footer>
+<hr>
+<small>
+ © 2005, 2007, 2008, 2010, 2012, 2016–2018, 2020 <a href="https://web.cs.ucla.edu/classes/fall20/cs35L/mail-eggert.html">Paul Eggert</a>.
+ See <a href="https://web.cs.ucla.edu/classes/fall20/cs35L/copyright.html">copying rules</a>.<br>
+
+ $Id: assign2.html,v 1.45 2020/04/05 01:19:49 eggert Exp $
+</small>
+</footer>
+
+
+
+</body></html>
