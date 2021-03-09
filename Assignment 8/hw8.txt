@@ -1,0 +1,54 @@
+1. Created this file
+
+2. I had issues with the repo I had done lab8 with, so I created a new repo fresh, since I would
+need to apply the patch anyway. In this repor I initilialized, I checked out version 3.0, then 
+created a branch quote.
+
+3. I installed my patch that I created in the lab with the patch command, easy enough with -p1
+option.
+
+4. By opening emacs and running the funtion add-change-log-entry-other-window (C-x 4 a), a
+ChangeLog file is created, which is properly formatted for ease. You are meant to list each file
+you change in the patch, and what you changed for them.
+
+5. Following the format that I see from the ChangeLog already present in the repo, I created
+my own ChangeLog file, describing how I changed the six files to change the way quotes are
+presented. Since the same change was made for all files, after the first the description was
+simply "likewise"
+
+6. I tried to commit with the -F flag at first to use the ChangeLog file I created as the
+message for the commit, but this did not work as I had modified files, the 6 .c ones that I 
+patched. So I had to add this modified files to the staging area with git add, then tried again,
+and it worked.
+
+7. Figuring out how to use this format-patch was quite a handful. I found that I had to be on
+the quote branch, and give the command the name that I want to patch from, v3.0. I used:
+
+    git format-patch v3.0 --stdout >formatted-patch.txt
+
+I was originally trying starting from the v3.0 commit, which generated nothing. 
+
+8. I cloned a new repo, and tested the patch using git am. It gave me a message that the patch
+was applying, and finished the command, so I assumed it was done. At this point, I decided to 
+go through and install the files properly as I had done in the lab. While running make check,
+an error occurs that says "/bin/sh: cannot execute binary file" which is expected I suppose,
+since this is hinted at in assignment slides. 
+
+9. I ran make distdir, and it seems it creates a new version of diffutils packaged in a nice
+way. Indeed it's ChangeLog contained the bit that I had created in my own ChangeLog at the
+ very top!
+
+10. Changing to the given directory and running gitk after remembering that I needed to use
+xming to get it to work, I see that the newest merge not newer than 2015-01-25(which I took to 
+mean 2015-01-24 at the latest), was made by Joakim Verona, on 2015-01-24 at 17:11:31. The
+message of the merge is "merge master." The mergepoint unifies two seperate lines of commits,
+which based off an earlier merge, the left line is a merge of the master and xwidget branches,
+while the right line of commits that is merged is the continuation of the master branch. The
+upper 3 windows in gitk are meant to easily find a specific commit. The upper left has 
+diagrams and commit messages, the upper middle the author of that commit, and the upper right
+the time and date that the commit was commited. Clicking on a commit will make information
+of that commit viewable in the lower, larger 2 windows. The bottom right window gives a 
+selection for what you'd like to view in the bottom left window. This merge only has Comments to
+look at but other commits have things such as ChangeLog, and files that were 
+changed with the commit. Clicking on those filenames brings up in the bottom left window a 
+review of the hunks that were patched in that file. 

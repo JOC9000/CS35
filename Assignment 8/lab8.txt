@@ -1,0 +1,124 @@
+1. To find out what I was working with I changed directoryto the directory where the repo to 
+copy was in. I saw that it contained a git file and assume that using the git copy command
+on the path for that directory will give me a copy of that repo. So I moved back to my workspace
+and created a directory that would house the copied repo. I immediately found that it is
+actually git clone, and fixed my error. I tried it first with quotes around the path, but that
+did not work. Removing the quotes made the operation successful. I was suprised to see that
+a subdirectory was made within the current directory insted of copying the files directly.
+
+2. I moved to the diffutils directory and tested the command git log, which allowed me to move
+line-by-line through the large amount of commits that had been made. Each had details on what
+was changed, though I didn't understand much of it. Regardless I hoped that this format would
+allow me to pipe the output into the file needed for the lab. I went throught the command,
+careful to make sure the new file would be outside the current directory and it seemed to work.
+
+3. I tried the git tag command to see what it would output. It's output seemed simply to be 
+version numbers, and not that many. I'm unsure if this is correct but did the same as before and
+saved the file as needed by the spec.
+
+4. Now I found that I was unsure of how to generate a patch here. But by diving into TA videos,
+I found that format-patch was able to generate patches, and I found the commit needed within
+the git-log file. So, I ran the following command:
+
+    git format-patch -1 62ca21c8c1a5aa3488589dcb191a4ef04ae9ed4f --stdout > ../../quote-patch.txt
+
+Then I inspected the generated file, which contained the same description, which gave me 
+assurance that I did this correctly.
+
+5. To checkout version 3.0 I opted to use the tag to make things easier and used the following
+command:
+	git checkout v3.0
+This took some moments, but it gave me a message about a "detached head state" and at the end, 
+the message "HEAD is now at 022cd5c... version 3.0", which gave me the confidence that I had
+done this step right.
+
+6. To patch I simply moved to the directory of diffutils and ran the following command:
+   
+   patch -p1 < ../../quote-patch.txt
+
+The first error to occur was that a HACKING file was not found. As the spec says I pressed
+return at each error. The second error is another file help2man was not found either. Some
+hunks failed to patch for diff.c and diff3.c
+
+7. Using the git status command I see that 21 files being tracked were modified, and 20 were
+created. These files that were created were mainly .orig and .rej files as a result of failures
+patching.
+
+8. After reading, and watching some TA videos, I learned that vc-diff (C-x v =) displays a
+buffer on-screen of hunks of what was modified in the file, and hovering over one you can revert
+it with revert hunk: (C-u C-c C-a). Vc-revert (C-x v u) is used to totally revert a file, it can
+be used on any file open in emacs. The diff-goto-source (C-c C-c) is used by hovering over a
+hunk, taking you straight to its location in the file. 
+
+9. By using git status, I find these are all the files modified that are not .c files:
+   NEWS 
+   README 
+   TODO 
+   doc/diagmeet.note 
+   ms/config.bat 
+   ms/config.site 
+   po/en.po 
+   src/diff.h 
+   src/system.h 
+   tests/help-version 
+
+So I went one by one and fully reverted these files with the vc-revert command in emacs 
+(C-x v u). After this only few .c files were shown as modified. Then I went through each .c file
+that is not a change to a string charcter constants. Using the diff buffer, and goto-source 
+functions, I went through and did just that.
+
+10. After this I went through the remaining rej files, those corresponding to diff3.c.rej and 
+diff.c.rej. Upon inspection, these seemed to fail because the original files did not have the 
+correct spacing. So what I did is enter the rej file, copy the correct lines, and paste that 
+where it should be in the original file using Emacs dired mode. These are the start of the lines
+that I changed in each file:
+
+diff3.c:
+	N_("-i 
+diff.c:
+	N_("-l, 
+
+	N_("-D, 
+
+	N_(" LTYPE is  
+
+	N_("FILES are `FILE1
+
+	N_("If a FILE is `-'
+
+11. After this, beyond the six requisite changed files, only the orig and rej files remained,
+which are unnecessary now that I have made all changes. So I removed them all one-by-one.
+After this, only the 6 c files were shown as modified when I an git status.
+
+12. So I ran git diff and piped the output to quote-3.0-patch.txt. Using wc, I saw that it
+had 326 lines within range of the 300-400 given by the spec. Nice. It also only changes 6 .c
+files. Double nice.
+
+13. Since I am using lnxsrv06, I hope I don't have to use the extra steps from the spec. To
+build, I opened the README-hacking file and followed its commands as follows:
+    $ ./bootstrap
+    $ ./configure
+    $ make
+    $ make check
+And unfortunately, I did run into the error! So I used wget to download the patch, and patched.
+I noticed that the file was weird in that it wanted to change a file from directory old which
+doesn't exist, so when I ran patch I had to give it the correct path, which it also contains
+as a target oddly enough. I ran the verification tests, and even used grep to make sure no
+backticks were left. It seemed to work.
+
+14. To test the patch file accuracy, I created a new directory alongside diffutils, cnd copied
+those files from src of the diffutils I modified into the directory diffutils-3.0-patch. Then,
+I moved to one of my tries that I failed in, and checked out branch v3.0 on it. Then I ran
+the command from the spec. The first problem I found was that my completed src contained
+many .o and completed files that the version3.0 that is uninitialized does not have. For this 
+reason I removed those files as they were not "source" code.
+
+15. For this I used the system's version of diff, the files are not identical at all, it seems
+that many problems were due to different filenames, and another issue was that the diff3.c
+file got put in another order within the file, causing all its hunks to be included, both times.
+I see that the hunks overall are the same, so I know that both files have picked up the same
+differences. Indeed upon checking in emacs it seems that the most major change that is picked
+up is that diff3.c and diff.c are swtiched in the git generated diff and the other I made
+manually. TO further support that they are fairly similar they differ in total by only 6 lines,
+I assume 1 line per file(6 files) and change only 6 files that have the same nuber of hunks
+for each.
